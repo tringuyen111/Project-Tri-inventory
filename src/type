@@ -1,0 +1,513 @@
+export interface Asset {
+  id: string
+  asset_id: string // System generated unique ID
+  model_code: string
+  model_name?: string // For display purposes
+  uom_code?: string // Unit of Measure code from model asset
+  uom_name?: string // Unit of Measure name for display
+  serial_number: string
+  wh_code: string
+  wh_name?: string // For display purposes
+  location_code: string
+  location_name?: string // For display purposes
+  partner_code?: string
+  partner_name?: string // For display purposes
+  status: 'InStock' | 'Issued' | 'Disposed' | 'Lost'
+  created_date: string
+  updated_date: string
+}
+
+export interface AssetFormData {
+  model_code: string
+  serial_numbers: string // Multi-line input for batch creation
+  wh_code: string
+  location_code: string
+  partner_code?: string
+  status: 'InStock' | 'Issued' | 'Disposed' | 'Lost'
+}
+
+export interface AssetUpdateData {
+  wh_code: string
+  location_code: string
+  partner_code?: string
+  status: 'InStock' | 'Issued' | 'Disposed' | 'Lost'
+}
+
+export interface AssetHistory {
+  id: string
+  asset_id: string
+  action: 'Created' | 'StatusChanged' | 'LocationChanged' | 'WarehouseChanged' | 'PartnerAssigned'
+  old_value?: string
+  new_value?: string
+  timestamp: string
+  user_id?: string
+}
+
+export const ASSET_STATUSES = ['InStock', 'Issued', 'Disposed', 'Lost'] as const
+export interface AssetNone {
+  id: string
+  model_code: string
+  model_name?: string // For display purposes
+  uom_code?: string // Unit of Measure code from model asset
+  uom_name?: string // Unit of Measure name for display
+  wh_code: string
+  wh_name?: string // For display purposes
+  location_code: string
+  location_name?: string // For display purposes
+  qty_onhand: number // System calculated quantity
+  status: 'Active' | 'Inactive'
+  created_date: string
+  updated_date: string
+}
+
+export interface AssetNoneFormData {
+  model_code: string
+  wh_code: string
+  location_code: string
+  status: 'Active' | 'Inactive'
+}
+
+export interface AssetNoneUpdateData {
+  status: 'Active' | 'Inactive'
+}
+
+export const ASSET_NONE_STATUSES = ['Active', 'Inactive'] as const
+export type AssetNoneStatus = typeof ASSET_NONE_STATUSES[number]
+export interface AssetType {
+  asset_type_code: string;
+  asset_type_name: string;
+  description?: string;
+  status: 'Active' | 'Inactive';
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  updated_by: string;
+}
+
+export interface AssetTypeFormData {
+  asset_type_code: string;
+  asset_type_name: string;
+  description: string;
+  status: 'Active' | 'Inactive';
+}
+
+export interface AssetTypeFilters {
+  status: string;
+  search: string;
+}
+export interface Branch {
+  id: string
+  branch_code: string
+  branch_name: string
+  organization_id: string
+  organization_name?: string // For display purposes
+  address?: string
+  contact?: string
+  status: 'Active' | 'Inactive'
+  created_at?: Date
+  updated_at?: Date
+}
+
+export interface CreateBranchRequest {
+  branch_code: string
+  branch_name: string
+  organization_id: string
+  address?: string
+  contact?: string
+  status: 'Active' | 'Inactive'
+}
+
+export interface UpdateBranchRequest {
+  branch_name: string
+  address?: string
+  contact?: string
+  status: 'Active' | 'Inactive'
+}
+
+export interface BranchFormData {
+  branch_code: string
+  branch_name: string
+  organization_id: string
+  address: string
+  contact: string
+  status: 'Active' | 'Inactive'
+}
+export interface GoodsReceiptLine {
+  id: string
+  model_id: string
+  model_code: string
+  model_name: string
+  uom_id: string
+  uom_code: string
+  uom_name: string
+  tracking_type: 'None' | 'Lot' | 'Serial'
+  qty_planned: number
+  qty_received?: number
+  qty_remaining?: number
+  note?: string
+  line_bin?: string
+  // For tracking purposes
+  serial_list?: string[]
+  lot_no?: string
+  mfg_date?: string
+  exp_date?: string
+  // Actual receiving records
+  actual_records?: GoodsReceiptActualRecord[]
+}
+
+export interface GoodsReceiptActualRecord {
+  id: string
+  gr_line_id: string
+  tracking_type: 'None' | 'Lot' | 'Serial'
+  qty_actual?: number
+  barcode?: string
+  lot_no?: string
+  mfg_date?: string
+  exp_date?: string
+  bin_id?: string
+  bin_code?: string
+  bin_name?: string
+  received_at: string
+  received_by: string
+  notes?: string
+}
+
+export interface GoodsReceiptAttachment {
+  id: string
+  filename: string
+  file_size: number
+  file_type: string
+  uploaded_at: string
+}
+
+export interface GoodsReceipt {
+  id: string
+  receipt_no: string
+  receipt_type: 'PO' | 'Transfer' | 'Return' | 'Manual'
+  ref_no?: string
+  partner_id?: string
+  partner_code?: string
+  partner_name?: string
+  from_wh_id?: string
+  from_wh_code?: string
+  from_wh_name?: string
+  to_wh_id: string
+  to_wh_code: string
+  to_wh_name: string
+  expected_date: string
+  remark?: string
+  status: 'Draft' | 'Receiving' | 'Submitted' | 'Completed' | 'Rejected' | 'Cancelled'
+  lines: GoodsReceiptLine[]
+  attachments: GoodsReceiptAttachment[]
+  created_at: string
+  created_by: string
+  updated_at: string
+  updated_by: string
+  // Approval workflow fields
+  submitted_at?: string
+  submitted_by?: string
+  submit_note?: string
+  approved_at?: string
+  approved_by?: string
+  approved_note?: string
+  rejected_at?: string
+  rejected_by?: string
+  rejected_reason?: string
+  cancelled_at?: string
+  cancelled_by?: string
+  cancelled_reason?: string
+  // Summary calculations
+  total_lines?: number
+  total_qty_planned?: number
+  total_qty_received?: number
+  over_under_flag?: 'over' | 'under' | 'exact'
+}
+
+export interface GoodsReceiptFormData {
+  receipt_type: 'PO' | 'Transfer' | 'Return' | 'Manual'
+  ref_no?: string
+  partner_id?: string
+  from_wh_id?: string
+  to_wh_id: string
+  expected_date: string
+  remark?: string
+  lines: Omit<GoodsReceiptLine, 'id' | 'model_code' | 'model_name' | 'uom_code' | 'uom_name'>[]
+  attachments: File[]
+}
+
+export interface GoodsReceiptImportData {
+  model_code: string
+  uom_code: string
+  tracking_type: 'None' | 'Lot' | 'Serial'
+  qty_planned: number
+  note?: string
+  serial_list?: string
+  lot_no?: string
+  mfg_date?: string
+  exp_date?: string
+}
+
+export interface GoodsReceiptValidationError {
+  line: number
+  field: string
+  message: string
+}
+
+export interface GoodsReceiptWarning {
+  type: 'over_receipt' | 'under_receipt' | 'duplicate_barcode' | 'missing_lot_info' | 'invalid_bin'
+  line_id?: string
+  model_name?: string
+  message: string
+  blocking: boolean
+}
+
+export interface GoodsReceiptAuditLog {
+  id: string
+  receipt_id: string
+  action: 'created' | 'updated' | 'submitted' | 'approved' | 'rejected' | 'cancelled' | 'reversed'
+  user_id: string
+  user_name: string
+  timestamp: string
+  details: string
+  ip_address?: string
+  before_data?: any
+  after_data?: any
+}
+export interface Location {
+  loc_code: string;
+  loc_name: string;
+  wh_code: string;
+  allow_asset_types: string[];
+  deny_asset_types: string[];
+  status: "Active" | "Inactive";
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface AssetType {
+  code: string;
+  name: string;
+  description?: string;
+  status: "Active" | "Inactive";
+}
+
+export interface LocationFormData {
+  loc_code: string;
+  loc_name: string;
+  wh_code: string;
+  allow_asset_types: string[];
+  deny_asset_types: string[];
+  status: "Active" | "Inactive";
+}
+
+export interface CreateLocationData {
+  loc_code: string;
+  loc_name: string;
+  wh_code: string;
+  allow_asset_types: string[];
+  deny_asset_types: string[];
+  status: "Active" | "Inactive";
+}
+
+export interface UpdateLocationData {
+  loc_name: string;
+  allow_asset_types: string[];
+  deny_asset_types: string[];
+  status: "Active" | "Inactive";
+}
+export interface Lot {
+  lot_code: string
+  model_code: string
+  model_name?: string
+  uom_code?: string // Unit of Measure code from model asset
+  uom_name?: string // Unit of Measure name for display
+  wh_code: string
+  wh_name?: string
+  loc_code: string
+  loc_name?: string
+  received_date: string
+  mfg_date?: string
+  exp_date?: string
+  status: 'Active' | 'Inactive'
+  qty_onhand: number
+  created_at?: string
+  updated_at?: string
+}
+
+export interface LotFormData {
+  lot_code: string
+  model_code: string
+  wh_code: string
+  loc_code: string
+  received_date: string
+  mfg_date?: string
+  exp_date?: string
+  status: 'Active' | 'Inactive'
+}
+export interface ModelAsset {
+  id: string
+  model_code: string
+  model_name: string
+  asset_type_code: string
+  asset_type_name?: string // For display purposes
+  tracking_type: 'Serial' | 'Lot' | 'None'
+  uom_code: string
+  uom_name?: string // For display purposes
+  description?: string
+  status: 'Active' | 'Inactive'
+  created_date: string
+  updated_date: string
+}
+
+export interface ModelAssetFormData {
+  model_code: string
+  model_name: string
+  asset_type_code: string
+  tracking_type: 'Serial' | 'Lot' | 'None'
+  uom_code: string
+  description: string
+  status: 'Active' | 'Inactive'
+}
+
+export const TRACKING_TYPES = ['Serial', 'Lot', 'None'] as const
+export type TrackingType = typeof TRACKING_TYPES[number]
+export interface Organization {
+  id: string
+  organization_code: string
+  organization_name: string
+  address?: string
+  contact?: string
+  status: 'Active' | 'Inactive'
+  created_at?: Date
+  updated_at?: Date
+}
+
+export interface CreateOrganizationRequest {
+  organization_code: string
+  organization_name: string
+  address?: string
+  contact?: string
+  status: 'Active' | 'Inactive'
+}
+
+export interface UpdateOrganizationRequest {
+  organization_name: string
+  address?: string
+  contact?: string
+  status: 'Active' | 'Inactive'
+}
+
+export interface OrganizationFormData {
+  organization_code: string
+  organization_name: string
+  address: string
+  contact: string
+  status: 'Active' | 'Inactive'
+}
+export interface Partner {
+  id: string;
+  partner_code: string;
+  partner_name: string;
+  partner_type: 'Supplier' | 'Customer';
+  tax_code?: string;
+  address?: string;
+  contact?: string;
+  status: 'Active' | 'Inactive';
+  created_at: string;
+  updated_at: string;
+  // Reference tracking for status validation
+  has_open_documents?: boolean;
+}
+
+export interface CreatePartnerData {
+  partner_code: string;
+  partner_name: string;
+  partner_type: 'Supplier' | 'Customer';
+  tax_code?: string;
+  address?: string;
+  contact?: string;
+  status: 'Active' | 'Inactive';
+}
+
+export interface UpdatePartnerData {
+  partner_name: string;
+  tax_code?: string;
+  address?: string;
+  contact?: string;
+  status: 'Active' | 'Inactive';
+}
+
+export interface PartnerFilters {
+  partner_type?: 'Supplier' | 'Customer';
+  status?: 'Active' | 'Inactive';
+  search?: string;
+}
+export interface UoM {
+  id: string
+  uom_code: string
+  uom_name: string
+  measure_type: MeasureType
+  status: UoMStatus
+  created_at: string
+  updated_at: string
+  is_base_unit?: boolean
+}
+
+export interface UoMConversion {
+  id: string
+  from_uom_id: string
+  from_uom: UoM
+  to_uom_id: string
+  to_uom: UoM
+  multiplier: number
+  note?: string
+  created_at: string
+  updated_at: string
+  is_system_generated?: boolean // for inverse relationships
+}
+
+export type MeasureType = 
+  | 'Piece' 
+  | 'Weight' 
+  | 'Volume' 
+  | 'Length' 
+  | 'Area' 
+  | 'Time' 
+  | 'Temperature'
+
+export type UoMStatus = 'Active' | 'Inactive'
+
+export interface UoMFilter {
+  measure_type?: MeasureType
+  status?: UoMStatus
+  search?: string
+}
+
+export interface ConversionChain {
+  from_uom: UoM
+  to_uom: UoM
+  total_multiplier: number
+  chain: UoMConversion[]
+}
+export interface Warehouse {
+  id: string
+  code: string
+  name: string
+  organizationId: string
+  organizationName: string
+  branchId: string
+  branchName: string
+  address?: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface WarehouseFormData {
+  code: string
+  name: string
+  organizationId: string
+  branchId: string
+  address?: string
+  isActive: boolean
+}
